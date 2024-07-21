@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -70,7 +69,38 @@ func getNodeHandler(w http.ResponseWriter, r *http.Request) {
 
 // PUT node - /api/nodes/{id}
 func putNodeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "PUT /nodes/{id}")
+	var err error
+	vars := mux.Vars()
+	id := vars["id"]
+	var updatedNode Node
+	var status int
+
+	err = json.NewDecoder(r.Body).Decode(&updatedNode)
+
+	if err != nil {
+		panic(err)
+	}
+
+	if node, ok := nodesStore[id]; ok {
+		updatedNode.CreatedOn = node.CreatedOn
+		updatedNode.UpdatedOn = time.Now()
+		delete(nodesStore, id)
+		nodesStore[id] = updatedNode
+		status = http.StatusOK
+	} else {
+		log.Printf("Could not find node %s to update", id)
+		status = http.StatusNotFound
+	}
+
+	j, err := json.Marshal(nodesStore[id])
+
+	if err != nil {
+		panic(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	w.Write(j)
 }
 
 // DELETE node - /api/nodes/{id}
