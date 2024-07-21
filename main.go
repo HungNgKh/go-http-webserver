@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,7 +16,7 @@ type Node struct {
 	CreatedOn   time.Time `json:"createdon"`
 }
 
-var nodes = make(map[string]Node)
+var nodesStore = make(map[string]Node)
 
 var id int = 0
 
@@ -26,7 +27,20 @@ func postNodeHandler(w http.ResponseWriter, r *http.Request) {
 
 // GET node - /api/nodes
 func getNodeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "GET /nodes")
+	var nodes []Node
+
+	for _, node := range nodesStore {
+		nodes = append(nodes, node)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	j, err := json.Marshal(nodes)
+
+	if err != nil {
+		panic(err)
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(j)
 }
 
 // PUT node - /api/nodes/{id}
