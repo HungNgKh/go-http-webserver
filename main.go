@@ -105,23 +105,12 @@ func putNodeHandler(w http.ResponseWriter, r *http.Request) {
 
 // DELETE node - /api/nodes/{id}
 func deleteNodeHandler(w http.ResponseWriter, r *http.Request) {
-	var err error
 	vars := mux.Vars()
 	id := vars["id"]
-	var updatedNode Node
 	var status int
 
-	err = json.NewDecoder(r.Body).Decode(&updatedNode)
-
-	if err != nil {
-		panic(err)
-	}
-
-	if node, ok := nodesStore[id]; ok {
-		updatedNode.CreatedOn = node.CreatedOn
-		updatedNode.UpdatedOn = time.Now()
+	if _, ok := nodesStore[id]; ok {
 		delete(nodesStore, id)
-		nodesStore[id] = updatedNode
 		status = http.StatusNoContent
 	} else {
 		log.Printf("Could not find key %s to delete", id)
