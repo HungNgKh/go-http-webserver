@@ -15,6 +15,7 @@ type Node struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	CreatedOn   time.Time `json:"createdon"`
+	UpdatedOn   time.Time `json:"updatedon"`
 }
 
 var nodesStore = make(map[string]Node)
@@ -32,6 +33,7 @@ func postNodeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	node.CreatedOn = time.Now()
+	node.UpdatedOn = node.CreatedOn
 
 	id++
 	idString := strconv.Itoa(id)
@@ -73,7 +75,30 @@ func putNodeHandler(w http.ResponseWriter, r *http.Request) {
 
 // DELETE node - /api/nodes/{id}
 func deleteNodeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "DELETE /nodes/{id}")
+	var err error
+	vars := mux.Vars()
+	id := vars["id"]
+	var updatedNode Node
+	var status int
+
+	err = json.NewDecoder(r.Body).Decode(&updatedNode)
+
+	if err != nil {
+		panic(err)
+	}
+
+	if node, ok := nodesStore[id]; ok {
+		updatedNode.CreatedOn = node.CreatedOn
+		updatedNode.UpdatedOn = time.Now()
+		delete(nodesStore, id)
+		nodesStore[id] = updatedNode
+		status = http.StatusNoContent
+	} else {
+		log.Printf("Could not find key %s to delete", id)
+		status = http.StatusNotFound
+	}
+
+	w.WriteHeader(status)
 }
 
 func main() {
