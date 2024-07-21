@@ -87,20 +87,21 @@ func putNodeHandler(w http.ResponseWriter, r *http.Request) {
 		delete(nodesStore, id)
 		nodesStore[id] = updatedNode
 		status = http.StatusOK
+		j, err := json.Marshal(nodesStore[id])
+
+		if err != nil {
+			panic(err)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(j)
 	} else {
 		log.Printf("Could not find node %s to update", id)
 		status = http.StatusNotFound
 	}
 
-	j, err := json.Marshal(nodesStore[id])
-
-	if err != nil {
-		panic(err)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	w.Write(j)
+
 }
 
 // DELETE node - /api/nodes/{id}
