@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -22,7 +23,29 @@ var id int = 0
 
 // POST node - /api/nodes
 func postNodeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "POST /nodes")
+	var node Node
+
+	err := json.NewDecoder(r.Body).Decode(&node)
+
+	if err != nil {
+		panic(err)
+	}
+
+	node.CreatedOn = time.Now()
+
+	id++
+	idString := strconv.Itoa(id)
+	nodesStore[idString] = node
+
+	j, err := json.Marshal(node)
+
+	if err != nil {
+		panic(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	w.Write(j)
 }
 
 // GET node - /api/nodes
