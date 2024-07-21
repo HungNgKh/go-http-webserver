@@ -70,7 +70,7 @@ func getNodeHandler(w http.ResponseWriter, r *http.Request) {
 // PUT node - /api/nodes/{id}
 func putNodeHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
-	vars := mux.Vars()
+	vars := mux.Vars(r)
 	id := vars["id"]
 	var updatedNode Node
 	var status int
@@ -105,7 +105,7 @@ func putNodeHandler(w http.ResponseWriter, r *http.Request) {
 
 // DELETE node - /api/nodes/{id}
 func deleteNodeHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars()
+	vars := mux.Vars(r)
 	id := vars["id"]
 	var status int
 
