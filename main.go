@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"text/template"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -20,6 +21,13 @@ type Node struct {
 var nodesStore = make(map[string]Node)
 
 var id int = 0
+
+var templates map[string]*template.Template
+
+// GET nodes - /
+func getNodes(w http.ResponseWriter, r *http.Request) {
+	renderTemplate(w, "index", "base", nodesStore)
+}
 
 // POST node - /api/nodes
 func postNodeHandler(w http.ResponseWriter, r *http.Request) {
@@ -46,24 +54,6 @@ func postNodeHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	w.Write(j)
-}
-
-// GET node - /api/nodes
-func getNodeHandler(w http.ResponseWriter, r *http.Request) {
-	var nodes []Node
-
-	for _, node := range nodesStore {
-		nodes = append(nodes, node)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	j, err := json.Marshal(nodes)
-
-	if err != nil {
-		panic(err)
-	}
-	w.WriteHeader(http.StatusOK)
 	w.Write(j)
 }
 
@@ -121,13 +111,37 @@ func deleteNodeHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(status)
 }
 
+func init() {
+	if templates == nil {
+		templates = make(map[string]*template.Template)
+	}
+
+	templates["index"] = template.Must(template.ParseFiles("templates/index.html", "templates/base.html"))
+	templates["add"] = template.Must(template.ParseFiles("templates/add.html", "templates/base.html"))
+	templates["edit"] = template.Must(template.ParseFiles("templates/edit.html", "templates/base.html"))
+}
+
+func renderTemplate(w http.ResponseWriter, name string, template string, viewModel interface{}) {
+	tmpl, ok := templates[name]
+	if !ok {
+		http.Error(w, "Template does not exists", http.StatusInternalServerError)
+	}
+
+	err := tmpl.ExecuteTemplate(w, template, viewModel)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func main() {
 	router := mux.NewRouter()
 
+	router.HandleFunc("/", getNodes)
 	router.HandleFunc("/api/nodes", getNodeHandler).Methods("GET")
 	router.HandleFunc("/api/nodes", postNodeHandler).Methods("POST")
-	router.HandleFunc("/api/nodes/{id}", putNodeHandler).Methods("PUT")
-	router.HandleFunc("/api/nodes/{id}", deleteNodeHandler).Methods("DELETE")
+	router.HandleFunc("/nodes/update/{id}", putNodeHandler).Methods("PUT")
+	router.HandleFunc("/nodes/delete/{id}", deleteNodeHandler).Methods("DELETE")
 
 	server := &http.Server{
 		Addr:           ":8080",
