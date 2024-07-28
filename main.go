@@ -138,7 +138,6 @@ func main() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", getNodes)
-	router.HandleFunc("/api/nodes", getNodeHandler).Methods("GET")
 	router.HandleFunc("/api/nodes", postNodeHandler).Methods("POST")
 	router.HandleFunc("/nodes/update/{id}", putNodeHandler).Methods("PUT")
 	router.HandleFunc("/nodes/delete/{id}", deleteNodeHandler).Methods("DELETE")
