@@ -29,6 +29,11 @@ func getNodes(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "index", "base", nodesStore)
 }
 
+// GET nodes - /add
+func addNode(w http.ResponseWriter, r *http.Request) {
+	renderTemplate(w, "add", "base", nil)
+}
+
 // POST node - /api/nodes
 func postNodeHandler(w http.ResponseWriter, r *http.Request) {
 	var node Node
@@ -138,6 +143,7 @@ func main() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", getNodes)
+	router.HandleFunc("/nodes/add", addNode)
 	router.HandleFunc("/api/nodes", postNodeHandler).Methods("POST")
 	router.HandleFunc("/nodes/update/{id}", putNodeHandler).Methods("PUT")
 	router.HandleFunc("/nodes/delete/{id}", deleteNodeHandler).Methods("DELETE")
