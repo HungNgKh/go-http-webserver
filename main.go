@@ -18,6 +18,11 @@ type Node struct {
 	UpdatedOn   time.Time `json:"updatedon"`
 }
 
+type EditNode struct {
+	Node
+	Id string
+}
+
 var nodesStore = make(map[string]Node)
 
 var id int = 0
@@ -45,6 +50,21 @@ func saveNode(w http.ResponseWriter, r *http.Request) {
 	k := strconv.Itoa(id)
 	nodesStore[k] = node
 	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+// handler for /node/edit/{id} to editing existing item
+func editNode(w http.ResponseWriter, r *http.Request) {
+	var viewModel EditNode
+
+	vars := mux.Vars(r)
+	k := vars["id"]
+	if node, ok := nodesStore[k]; ok {
+		viewModel = EditNode{node, k}
+	} else {
+		http.Error(w, "Could not find resource to edit", http.StatusBadRequest)
+	}
+
+	renderTemplate(w, "edit", "base", viewModel)
 }
 
 // POST node - /api/nodes
