@@ -199,8 +199,9 @@ func main() {
 
 	router.HandleFunc("/", getNodes)
 	router.HandleFunc("/nodes/add", addNode)
-	router.HandleFunc("/api/nodes", postNodeHandler).Methods("POST")
-	router.HandleFunc("/nodes/update/{id}", putNodeHandler).Methods("PUT")
+	router.HandleFunc("/nodes/save", saveNode)
+	router.HandleFunc("/nodes/edit/{id}", editNode)
+	router.HandleFunc("/nodes/update/{id}", updateNode)
 	router.HandleFunc("/nodes/delete/{id}", deleteNodeHandler).Methods("DELETE")
 
 	server := &http.Server{
