@@ -88,8 +88,8 @@ func updateNode(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-// DELETE node - /api/nodes/{id}
-func deleteNodeHandler(w http.ResponseWriter, r *http.Request) {
+// DELETE node handler - /node/delete/{id}
+func deleteNode(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	var status int
@@ -136,7 +136,7 @@ func main() {
 	router.HandleFunc("/nodes/save", saveNode)
 	router.HandleFunc("/nodes/edit/{id}", editNode)
 	router.HandleFunc("/nodes/update/{id}", updateNode)
-	router.HandleFunc("/nodes/delete/{id}", deleteNodeHandler).Methods("DELETE")
+	router.HandleFunc("/nodes/delete/{id}", deleteNode).Methods("DELETE")
 
 	server := &http.Server{
 		Addr:           ":8080",
