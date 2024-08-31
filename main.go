@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
@@ -87,71 +86,6 @@ func updateNode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/", http.StatusFound)
-}
-
-// POST node - /api/nodes
-func postNodeHandler(w http.ResponseWriter, r *http.Request) {
-	var node Node
-
-	err := json.NewDecoder(r.Body).Decode(&node)
-
-	if err != nil {
-		panic(err)
-	}
-
-	node.CreatedOn = time.Now()
-	node.UpdatedOn = node.CreatedOn
-
-	id++
-	idString := strconv.Itoa(id)
-	nodesStore[idString] = node
-
-	j, err := json.Marshal(node)
-
-	if err != nil {
-		panic(err)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	w.Write(j)
-}
-
-// PUT node - /api/nodes/{id}
-func putNodeHandler(w http.ResponseWriter, r *http.Request) {
-	var err error
-	vars := mux.Vars(r)
-	id := vars["id"]
-	var updatedNode Node
-	var status int
-
-	err = json.NewDecoder(r.Body).Decode(&updatedNode)
-
-	if err != nil {
-		panic(err)
-	}
-
-	if node, ok := nodesStore[id]; ok {
-		updatedNode.CreatedOn = node.CreatedOn
-		updatedNode.UpdatedOn = time.Now()
-		delete(nodesStore, id)
-		nodesStore[id] = updatedNode
-		status = http.StatusOK
-		j, err := json.Marshal(nodesStore[id])
-
-		if err != nil {
-			panic(err)
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(j)
-	} else {
-		log.Printf("Could not find node %s to update", id)
-		status = http.StatusNotFound
-	}
-
-	w.WriteHeader(status)
-
 }
 
 // DELETE node - /api/nodes/{id}
