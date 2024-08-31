@@ -34,6 +34,19 @@ func addNode(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "add", "base", nil)
 }
 
+// node/save for new item
+func saveNode(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	title := r.PostFormValue("title")
+	desc := r.PostFormValue("description")
+	node := Node{Title: title, Description: desc, CreatedOn: time.Now(), UpdatedOn: time.Now()}
+
+	id++
+	k := strconv.Itoa(id)
+	nodesStore[k] = node
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
 // POST node - /api/nodes
 func postNodeHandler(w http.ResponseWriter, r *http.Request) {
 	var node Node
