@@ -131,11 +131,11 @@ func renderTemplate(w http.ResponseWriter, name string, template string, viewMod
 func main() {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/", getNodes)
-	router.HandleFunc("/nodes/add", addNode)
-	router.HandleFunc("/nodes/save", saveNode)
-	router.HandleFunc("/nodes/edit/{id}", editNode)
-	router.HandleFunc("/nodes/update/{id}", updateNode)
+	router.HandleFunc("/", getNodes).Methods("GET")
+	router.HandleFunc("/nodes/add", addNode).Methods("GET")
+	router.HandleFunc("/nodes/save", saveNode).Methods("POST")
+	router.HandleFunc("/nodes/edit/{id}", editNode).Methods("GET")
+	router.HandleFunc("/nodes/update/{id}", updateNode).Methods("PUT")
 	router.HandleFunc("/nodes/delete/{id}", deleteNode).Methods("DELETE")
 
 	server := &http.Server{
