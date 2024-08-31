@@ -67,6 +67,28 @@ func editNode(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "edit", "base", viewModel)
 }
 
+// handler for  /node/update/{id} to updating existing item
+func updateNode(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	k := vars["id"]
+	var nodeToUpdate Node
+
+	if node, ok := nodesStore[k]; ok {
+		r.ParseForm()
+		nodeToUpdate.Title = r.PostFormValue("title")
+		nodeToUpdate.Description = r.PostFormValue("description")
+		nodeToUpdate.CreatedOn = node.CreatedOn
+		nodeToUpdate.UpdatedOn = time.Now()
+
+		delete(nodesStore, k)
+		nodesStore[k] = nodeToUpdate
+	} else {
+		http.Error(w, "Could not find resource to update", http.StatusBadRequest)
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
 // POST node - /api/nodes
 func postNodeHandler(w http.ResponseWriter, r *http.Request) {
 	var node Node
