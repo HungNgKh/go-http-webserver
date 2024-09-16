@@ -147,13 +147,15 @@ func iconHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	router := mux.NewRouter()
 
+	commonHandlers := alice.New(LoggingHandler, handlers.CompressHandler)
+
 	router.Handle("/", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(getNodes))).Methods("GET")
 	router.HandleFunc("/favicon.ico", iconHandler)
-	router.Handle("/nodes/add", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(addNode))).Methods("GET")
-	router.Handle("/nodes/save", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(saveNode))).Methods("POST")
-	router.Handle("/nodes/edit/{id}", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(editNode))).Methods("GET")
-	router.Handle("/nodes/update/{id}", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(updateNode))).Methods("POST")
-	router.Handle("/nodes/delete/{id}", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(deleteNode)))
+	router.Handle("/nodes/add", commonHandlers.ThenFunc(http.HandlerFunc(addNode))).Methods("GET")
+	router.Handle("/nodes/save", commonHandlers.ThenFunc(http.HandlerFunc(saveNode))).Methods("POST")
+	router.Handle("/nodes/edit/{id}", commonHandlers.ThenFunc(http.HandlerFunc(editNode))).Methods("GET")
+	router.Handle("/nodes/update/{id}", commonHandlers.ThenFunc(http.HandlerFunc(updateNode))).Methods("POST")
+	router.Handle("/nodes/delete/{id}", commonHandlers.ThenFunc(http.HandlerFunc(deleteNode)))
 
 	server := &http.Server{
 		Addr:           ":8080",
