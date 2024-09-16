@@ -1,9 +1,9 @@
-{{define "head"}}<title>Edit Note</title>{{end}}
+{{define "head"}}<title>Edit Node</title>{{end}}
 {{define "body"}}
-<h1>Edit Note</h1>
+<h1>Edit Node</h1>
 <form action="/nodes/update/{{.Id}}" method="post">
-    <p>Title:<br> <input type="text" value="{{.Note.Title}}" name="title"></p>
-    <p>Description:<br> <textarea rows="4" cols="50" name="description">{{.Note.Description}}</textarea> </p>
+    <p>Title:<br> <input type="text" value="{{.Node.Title}}" name="title"></p>
+    <p>Description:<br> <textarea rows="4" cols="50" name="description">{{.Node.Description}}</textarea> </p>
     <p><input type="submit" value="submit"/></p>
 </form>
 {{end}}

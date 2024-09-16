@@ -96,13 +96,13 @@ func deleteNode(w http.ResponseWriter, r *http.Request) {
 
 	if _, ok := nodesStore[id]; ok {
 		delete(nodesStore, id)
-		status = http.StatusNoContent
+		status = http.StatusFound
 	} else {
 		log.Printf("Could not find key %s to delete", id)
 		status = http.StatusNotFound
 	}
 
-	w.WriteHeader(status)
+	http.Redirect(w, r, "/", status)
 }
 
 func init() {
@@ -135,8 +135,8 @@ func main() {
 	router.HandleFunc("/nodes/add", addNode).Methods("GET")
 	router.HandleFunc("/nodes/save", saveNode).Methods("POST")
 	router.HandleFunc("/nodes/edit/{id}", editNode).Methods("GET")
-	router.HandleFunc("/nodes/update/{id}", updateNode).Methods("PUT")
-	router.HandleFunc("/nodes/delete/{id}", deleteNode).Methods("DELETE")
+	router.HandleFunc("/nodes/update/{id}", updateNode).Methods("POST")
+	router.HandleFunc("/nodes/delete/{id}", deleteNode)
 
 	server := &http.Server{
 		Addr:           ":8080",
