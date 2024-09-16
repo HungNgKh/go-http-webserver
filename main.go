@@ -140,10 +140,15 @@ func LoggingHandler(next http.Handler) http.Handler {
 	return handlers.LoggingHandler(logFile, next)
 }
 
+func iconHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "./favicon.ico")
+}
+
 func main() {
 	router := mux.NewRouter()
 
 	router.Handle("/", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(getNodes))).Methods("GET")
+	router.HandleFunc("/favicon.ico", iconHandler)
 	router.Handle("/nodes/add", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(addNode))).Methods("GET")
 	router.Handle("/nodes/save", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(saveNode))).Methods("POST")
 	router.Handle("/nodes/edit/{id}", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(editNode))).Methods("GET")

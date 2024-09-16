@@ -1,6 +1,11 @@
 {{define "base"}}
+<!DOCTYPE html>
 <html>
-  <head>{{template "head" .}}</head>
+  <head>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon"> 
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    {{template "head" .}}
+  </head>
   <body>{{template "body" .}}</body>
 </html>
 {{end}}
