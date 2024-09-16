@@ -149,8 +149,9 @@ func main() {
 
 	commonHandlers := alice.New(LoggingHandler, handlers.CompressHandler)
 
+	router.Handle("/favicon.ico", commonHandlers.ThenFunc(http.HandlerFunc(iconHandler)))
+
 	router.Handle("/", commonHandlers.ThenFunc(http.HandlerFunc(getNodes))).Methods("GET")
-	router.HandleFunc("/favicon.ico", iconHandler)
 	router.Handle("/nodes/add", commonHandlers.ThenFunc(http.HandlerFunc(addNode))).Methods("GET")
 	router.Handle("/nodes/save", commonHandlers.ThenFunc(http.HandlerFunc(saveNode))).Methods("POST")
 	router.Handle("/nodes/edit/{id}", commonHandlers.ThenFunc(http.HandlerFunc(editNode))).Methods("GET")
