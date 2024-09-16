@@ -149,7 +149,7 @@ func main() {
 
 	commonHandlers := alice.New(LoggingHandler, handlers.CompressHandler)
 
-	router.Handle("/", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(getNodes))).Methods("GET")
+	router.Handle("/", commonHandlers.ThenFunc(http.HandlerFunc(getNodes))).Methods("GET")
 	router.HandleFunc("/favicon.ico", iconHandler)
 	router.Handle("/nodes/add", commonHandlers.ThenFunc(http.HandlerFunc(addNode))).Methods("GET")
 	router.Handle("/nodes/save", commonHandlers.ThenFunc(http.HandlerFunc(saveNode))).Methods("POST")
