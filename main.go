@@ -3,10 +3,12 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"text/template"
 	"time"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -131,12 +133,17 @@ func renderTemplate(w http.ResponseWriter, name string, template string, viewMod
 func main() {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/", getNodes).Methods("GET")
-	router.HandleFunc("/nodes/add", addNode).Methods("GET")
-	router.HandleFunc("/nodes/save", saveNode).Methods("POST")
-	router.HandleFunc("/nodes/edit/{id}", editNode).Methods("GET")
-	router.HandleFunc("/nodes/update/{id}", updateNode).Methods("POST")
-	router.HandleFunc("/nodes/delete/{id}", deleteNode)
+	logFile, err := os.OpenFile("server.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		panic(err)
+	}
+
+	router.Handle("/", handlers.LoggingHandler(logFile, handlers.CompressHandler(http.HandlerFunc(getNodes)))).Methods("GET")
+	router.Handle("/nodes/add", handlers.LoggingHandler(logFile, handlers.CompressHandler(http.HandlerFunc(addNode)))).Methods("GET")
+	router.Handle("/nodes/save", handlers.LoggingHandler(logFile, handlers.CompressHandler(http.HandlerFunc(saveNode)))).Methods("POST")
+	router.Handle("/nodes/edit/{id}", handlers.LoggingHandler(logFile, handlers.CompressHandler(http.HandlerFunc(editNode)))).Methods("GET")
+	router.Handle("/nodes/update/{id}", handlers.LoggingHandler(logFile, handlers.CompressHandler(http.HandlerFunc(updateNode)))).Methods("POST")
+	router.Handle("/nodes/delete/{id}", handlers.LoggingHandler(logFile, handlers.CompressHandler(http.HandlerFunc(deleteNode))))
 
 	server := &http.Server{
 		Addr:           ":8080",
