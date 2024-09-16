@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/justinas/alice"
 )
 
 type Node struct {
@@ -130,20 +131,24 @@ func renderTemplate(w http.ResponseWriter, name string, template string, viewMod
 	}
 }
 
-func main() {
-	router := mux.NewRouter()
-
+func LoggingHandler(next http.Handler) http.Handler {
 	logFile, err := os.OpenFile("server.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		panic(err)
 	}
 
-	router.Handle("/", handlers.LoggingHandler(logFile, handlers.CompressHandler(http.HandlerFunc(getNodes)))).Methods("GET")
-	router.Handle("/nodes/add", handlers.LoggingHandler(logFile, handlers.CompressHandler(http.HandlerFunc(addNode)))).Methods("GET")
-	router.Handle("/nodes/save", handlers.LoggingHandler(logFile, handlers.CompressHandler(http.HandlerFunc(saveNode)))).Methods("POST")
-	router.Handle("/nodes/edit/{id}", handlers.LoggingHandler(logFile, handlers.CompressHandler(http.HandlerFunc(editNode)))).Methods("GET")
-	router.Handle("/nodes/update/{id}", handlers.LoggingHandler(logFile, handlers.CompressHandler(http.HandlerFunc(updateNode)))).Methods("POST")
-	router.Handle("/nodes/delete/{id}", handlers.LoggingHandler(logFile, handlers.CompressHandler(http.HandlerFunc(deleteNode))))
+	return handlers.LoggingHandler(logFile, next)
+}
+
+func main() {
+	router := mux.NewRouter()
+
+	router.Handle("/", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(getNodes))).Methods("GET")
+	router.Handle("/nodes/add", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(addNode))).Methods("GET")
+	router.Handle("/nodes/save", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(saveNode))).Methods("POST")
+	router.Handle("/nodes/edit/{id}", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(editNode))).Methods("GET")
+	router.Handle("/nodes/update/{id}", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(updateNode))).Methods("POST")
+	router.Handle("/nodes/delete/{id}", alice.New(LoggingHandler, handlers.CompressHandler).ThenFunc(http.HandlerFunc(deleteNode)))
 
 	server := &http.Server{
 		Addr:           ":8080",
